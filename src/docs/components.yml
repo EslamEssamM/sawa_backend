@@ -5,20 +5,73 @@ components:
       properties:
         id:
           type: string
+        customId:
+          type: string
+          description: A unique, potentially custom ID assigned to the user.
         email:
           type: string
           format: email
         name:
           type: string
+        avatar:
+          type: string
+          description: URL to the user's avatar image.
+        frame:
+          type: string
+          description: URL to the user's profile frame.
+        country:
+          type: string
+        friends:
+          type: array
+          items:
+            type: string
+            description: List of friends' user IDs.
+        followers:
+          type: integer
+          description: Number of followers the user has.
+        following:
+          type: integer
+          description: Number of users this user is following.
+        level:
+          type: integer
+          description: The user's level within the app.
+        credits:
+          type: number
+          description: The number of credits the user has.
+        credits_agency:
+          type: boolean
+          description: Indicates if the user is an agency.
+        host_agency:
+          type: boolean
+          description: Indicates if the user is a host agency.
+        is_host:
+          type: boolean
+          description: Indicates if the user is a host.
         role:
           type: string
           enum: [user, admin]
+        isEmailVerified:
+          type: boolean
+          description: Indicates if the user's email has been verified.
       example:
-        id: 5ebac534954b54139806c112
+        id: special123
+        customId: user456
         email: fake@example.com
         name: fake name
+        avatar: http://example.com/avatar.jpg
+        frame: http://example.com/frame.png
+        country: US
+        friends: [user789, user321]
+        followers: 150
+        following: 200
+        level: 5
+        credits: 1000
+        credits_agency: true
+        host_agency: false
+        is_host: true
         role: user
-
+        isEmailVerified: false
+      
     Token:
       type: object
       properties:
