@@ -1,2 +1,12 @@
 module.exports.Token = require('./token.model');
 module.exports.User = require('./user.model');
+module.exports.Profile = require('./profile.model');
+module.exports.group = require('./group.model');
+module.exports.item = require('./item.model');
+module.exports.levelSystem = require('./levelSystem.model');
+module.exports.creditHistory = require('./creditHistory.model');
+module.exports.store = require('./store.model');
+module.exports.ignorance = require('./ignorance.model');
+module.exports.freindRequest = require('./freindRequest.model');
+module.exports.agency = require('./agency.model');
+module.exports.pointAnalytics = require('./pointAnalytics.model');

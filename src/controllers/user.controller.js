@@ -11,15 +11,17 @@ const createUser = catchAsync(async (req, res) => {
 });
 
 // Get all users with filtering and pagination
-const getUsers = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['name', 'role']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const result = await userService.queryUsers(filter, options);
-  res.send(result);
+const searchUsers = catchAsync(async (req, res) => {
+  const { query } = req.query;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+
+  const results = await userService.searchUsers(query, page, limit);
+  res.send(results);
 });
 
 // Get a single user by ID
-const getUser = catchAsync(async (req, res) => {
+const getUserById = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.params.userId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
@@ -28,13 +30,13 @@ const getUser = catchAsync(async (req, res) => {
 });
 
 // Update a user's information by ID
-const updateUser = catchAsync(async (req, res) => {
+const updateUserById = catchAsync(async (req, res) => {
   const user = await userService.updateUserById(req.params.userId, req.body);
   res.send(user);
 });
 
 // Delete a user by ID
-const deleteUser = catchAsync(async (req, res) => {
+const deleteUserById = catchAsync(async (req, res) => {
   await userService.deleteUserById(req.params.userId);
   res.status(httpStatus.NO_CONTENT).send();
 });
@@ -101,57 +103,52 @@ const getBlockedList = catchAsync(async (req, res) => {
   res.send({ blocked_list: blockedUsers });
 });
 
-const searchUsers = catchAsync(async (req, res) => {
-  const users = await userService.searchUsers(req.params.param);
-  res.send({ search_list: users });
-});
+// const getVipLevel = catchAsync(async (req, res) => {
+//   const vipLevel = await userService.getVipLevel(req.params.id);
+//   res.send({ vip_level: vipLevel });
+// });
 
-const getVipLevel = catchAsync(async (req, res) => {
-  const vipLevel = await userService.getVipLevel(req.params.id);
-  res.send({ vip_level: vipLevel });
-});
+// const getProExpiration = catchAsync(async (req, res) => {
+//   const expirationDate = await userService.getProExpiration(req.params.id);
+//   res.send({ expiration_date: expirationDate });
+// });
 
-const getProExpiration = catchAsync(async (req, res) => {
-  const expirationDate = await userService.getProExpiration(req.params.id);
-  res.send({ expiration_date: expirationDate });
-});
+// const getStoreSections = catchAsync(async (req, res) => {
+//   const storeData = await userService.getStoreSections(req.params.id);
+//   res.send(storeData);
+// });
 
-const getStoreSections = catchAsync(async (req, res) => {
-  const storeData = await userService.getStoreSections(req.params.id);
-  res.send(storeData);
-});
+// const getUserLevel = catchAsync(async (req, res) => {
+//   const levelData = await userService.getUserLevel(req.params.id);
+//   res.send(levelData);
+// });
 
-const getUserLevel = catchAsync(async (req, res) => {
-  const levelData = await userService.getUserLevel(req.params.id);
-  res.send(levelData);
-});
+// const getCreditsHistory = catchAsync(async (req, res) => {
+//   const creditsHistory = await userService.getCreditsHistory(req.params.id);
+//   res.send(creditsHistory);
+// });
 
-const getCreditsHistory = catchAsync(async (req, res) => {
-  const creditsHistory = await userService.getCreditsHistory(req.params.id);
-  res.send(creditsHistory);
-});
+// const getCreditsAgency = catchAsync(async (req, res) => {
+//   const agencyData = await userService.getCreditsAgency(req.params.id);
+//   res.send(agencyData);
+// });
 
-const getCreditsAgency = catchAsync(async (req, res) => {
-  const agencyData = await userService.getCreditsAgency(req.params.id);
-  res.send(agencyData);
-});
+// const getHostAgencyData = catchAsync(async (req, res) => {
+//   const hostAgencyData = await userService.getHostAgencyData(req.params.id);
+//   res.send(hostAgencyData);
+// });
 
-const getHostAgencyData = catchAsync(async (req, res) => {
-  const hostAgencyData = await userService.getHostAgencyData(req.params.id);
-  res.send(hostAgencyData);
-});
-
-const getJoinRequests = catchAsync(async (req, res) => {
-  const joinRequests = await userService.getJoinRequests(req.params.id);
-  res.send({ users: joinRequests });
-});
+// const getJoinRequests = catchAsync(async (req, res) => {
+//   const joinRequests = await userService.getJoinRequests(req.params.id);
+//   res.send({ users: joinRequests });
+// });
 
 module.exports = {
   createUser,
-  getUsers,
-  getUser,
-  updateUser,
-  deleteUser,
+  searchUsers,
+  getUserById,
+  updateUserById,
+  deleteUserById,
   getProfile,
   updateProfile,
   addFriend,
@@ -162,13 +159,4 @@ module.exports = {
   getFollowersList,
   getFollowingList,
   getBlockedList,
-  searchUsers,
-  getVipLevel,
-  getProExpiration,
-  getStoreSections,
-  getUserLevel,
-  getCreditsHistory,
-  getCreditsAgency,
-  getHostAgencyData,
-  getJoinRequests,
 };

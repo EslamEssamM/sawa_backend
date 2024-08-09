@@ -6,44 +6,40 @@ const userController = require('../../controllers/user.controller');
 
 const router = express.Router();
 
-router
-  .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
+router.post('/', validate(userValidation.createUser), userController.createUser);
+router.get('/', auth, validate(userValidation.getUsers), userController.getUsers);
+router.get('/:userId', auth, validate(userValidation.getUser), userController.getUserById);
+router.put('/:userId', auth, validate(userValidation.updateUser), userController.updateUserById);
+router.delete('/:userId', auth, validate(userValidation.deleteUser), userController.deleteUserById);
 
-router
-  .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+// router.route('/main/:id').get(auth(), userController.getMainProfile);
 
-router.route('/main/:id').get(auth(), userController.getMainProfile);
+// router.route('/main/:id/friends').get(auth(), userController.getFriendsList);
 
-router.route('/main/:id/friends').get(auth(), userController.getFriendsList);
+// router.route('/main/:id/followers').get(auth(), userController.getFollowersList);
 
-router.route('/main/:id/followers').get(auth(), userController.getFollowersList);
+// router.route('/main/:id/following').get(auth(), userController.getFollowingList);
 
-router.route('/main/:id/following').get(auth(), userController.getFollowingList);
+// router.route('/main/:id/blocked').get(auth(), userController.getBlockedList);
 
-router.route('/main/:id/blocked').get(auth(), userController.getBlockedList);
+// router.route('/search/:param').get(auth(), userController.searchUsers);
 
-router.route('/search/:param').get(auth(), userController.searchUsers);
+// router.route('/:id/vip').get(auth(), userController.getVipLevel);
 
-router.route('/:id/vip').get(auth(), userController.getVipLevel);
+// router.route('/:id/pro').get(auth(), userController.getProExpiration);
 
-router.route('/:id/pro').get(auth(), userController.getProExpiration);
+// router.route('/:id/store').get(auth(), userController.getStoreSections);
 
-router.route('/:id/store').get(auth(), userController.getStoreSections);
+// router.route('/:id/level').get(auth(), userController.getUserLevel);
 
-router.route('/:id/level').get(auth(), userController.getUserLevel);
+// router.route('/:id/credits').get(auth(), userController.getCreditsHistory);
 
-router.route('/:id/credits').get(auth(), userController.getCreditsHistory);
+// router.route('/:id/credits_agency').get(auth(), userController.getCreditsAgency);
 
-router.route('/:id/credits_agency').get(auth(), userController.getCreditsAgency);
+// router.route('/:id/host_agency/host/:day').get(auth(), userController.getHostAgencyData);
 
-router.route('/:id/host_agency/host/:day').get(auth(), userController.getHostAgencyData);
+// router.route('/:id/host_agency/join_requests').get(auth(), userController.getJoinRequests);
 
-router.route('/:id/host_agency/join_requests').get(auth(), userController.getJoinRequests);
 module.exports = router;
 
 /**

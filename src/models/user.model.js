@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
-const { roles } = require('../config/roles');
+// const { roles } = require('../config/roles');
+const { generateUniqueUserId } = require('../utils/IDGen');
 
+// Define the User schema
 const userSchema = mongoose.Schema(
   {
     name: {
@@ -33,15 +35,23 @@ const userSchema = mongoose.Schema(
           throw new Error('Password must contain at least one letter and one number');
         }
       },
-      private: true, // used by the toJSON plugin
+    },
+    userId: {
+      type: String,
+      unique: true,
+      default: () => generateUniqueUserId(),
     },
     avatar: {
       type: String,
       default: '',
     },
+    frame: {
+      type: String,
+      default: '',
+    },
     role: {
       type: String,
-      enum: roles,
+      enum: ['user', 'admin'],
       default: 'user',
     },
     isEmailVerified: {
@@ -49,6 +59,41 @@ const userSchema = mongoose.Schema(
       default: false,
     },
     friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    blockedUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    // pendingFriendRequests: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //   },
+    // ],
+    // sentFriendRequests: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //   },
+    // ],
+    groups: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
+      },
+    ],
+    hostAgency: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Agency',
+      default: null,
+    },
+    ignoredUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -66,21 +111,28 @@ const userSchema = mongoose.Schema(
         ref: 'User',
       },
     ],
-    level: {
-      type: Number,
-      default: 1,
-    },
     credits: {
       type: Number,
       default: 0,
+    },
+    famePoints: {
+      type: Number,
+      default: 0,
+    },
+    richPoints: {
+      type: Number,
+      default: 0,
+    },
+    level: {
+      type: Number,
+      default: 1,
     },
     isHost: {
       type: Boolean,
       default: false,
     },
-    creditsAgency: {
-      type: Boolean,
-      default: false,
+    currentRoom: {
+      type: String, // roomId
     },
   },
   {
@@ -88,7 +140,7 @@ const userSchema = mongoose.Schema(
   }
 );
 
-// add plugin that converts mongoose to json
+// Add plugins that convert mongoose to JSON and add pagination
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 
@@ -144,6 +196,26 @@ userSchema.methods.unfollowUser = async function (userId) {
 };
 
 /**
+ * Block a user
+ * @param {ObjectId} userId
+ */
+userSchema.methods.blockUser = async function (userId) {
+  if (!this.blockedUsers.includes(userId)) {
+    this.blockedUsers.push(userId);
+    await this.save();
+  }
+};
+
+/**
+ * Unblock a user
+ * @param {ObjectId} userId
+ */
+userSchema.methods.unblockUser = async function (userId) {
+  this.blockedUsers = this.blockedUsers.filter((id) => id.toString() !== userId.toString());
+  await this.save();
+};
+
+/**
  * Increment user credits
  * @param {number} amount
  */
@@ -165,6 +237,9 @@ userSchema.methods.deductCredits = async function (amount) {
   }
 };
 
+/**
+ * Pre-save hook to hash password if modified
+ */
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 8);
